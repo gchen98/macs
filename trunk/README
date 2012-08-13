@@ -47,4 +47,4 @@ For very large sample sizes and/or sequence lengths, we recommend storing output
  
 ./macs 10000 1e9 -t .001 -r .001 -h 1e2 -F inputfiles/ascertainment.txt 0 2>trees.txt 1> sites.txt
 
-For comments or questions, please contact me at gary.k.chen@usc.edu
+For comments or questions, please post an issue at http://code.google.com/p/macs

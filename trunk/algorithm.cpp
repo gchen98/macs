@@ -1177,6 +1177,7 @@ bool GraphBuilder::checkPendingGeneConversions(double & curPos){
 
 void GraphBuilder::build(){
     double curPos = 0.0,lastPos = 0.0,dMaxPos = 1.0;
+    unsigned int iLastCumulativePos = 0;
     cerr<<"Debugging: "<<pConfig->bDebug<<endl;
 
     HotSpotBinPtrList::iterator hotSpotIt;
@@ -1268,7 +1269,11 @@ void GraphBuilder::build(){
         // check if we reached the end of the region
         if (curPos>dMaxPos) curPos=dMaxPos;
         if (pConfig->bNewickFormat){
-            uint iSegLength = (curPos-lastPos)*pConfig->dSeqLength;
+            // Chen
+            //uint iSegLength = (curPos-lastPos)*pConfig->dSeqLength;
+            // Schiffels following two lines fixes
+            uint iSegLength = curPos*pConfig->dSeqLength-iLastCumulativePos;
+            iLastCumulativePos += iSegLength; 
             cout<<NEWICKTREE<<"\t["<<iSegLength<<"]"<<
             getNewickTree(localMRCA->getHeight(),localMRCA)<<";"<<endl;
         }

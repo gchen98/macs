@@ -1,3 +1,8 @@
+
+Latest change updated 08-13-2012 Version 0.4f
+
+Stephan Schiffels gratefully fixed a bug in which precision of tree length would progressively degrade as trees were sampled from left to right on the chromosome. 
+
 Latest change updated 11-09-2011 Version 0.4e
 
 Thanks to Etienne Patin for pointing out a bug where SNP ascertainment failed when more than one simulation iteration was requested.  The bug is now fixed.  Vincenza Colonna pointed out discrepancies in the information headers regarding population IDs.  The headers now refer to populations as 1-indexed wheras previously some 0-indexed pop IDs were printed to screen. Note that users should refer to populations using 1-indexed pop IDs.
