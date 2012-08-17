@@ -1,4 +1,5 @@
 #include<iostream>
+#include<iomanip>
 #include<fstream>
 #include<cstdlib>
 #include<sstream>
@@ -125,7 +126,7 @@ int main(int argc,char * argv[]){
         else if (line.compare(SNPEND)==0){
             // print output in MS format now
             for (int i=0;i<totalpos;++i){
-                cout<<" "<<positions[i];
+                cout<<" "<< setprecision(14)<<positions[i];
             }
             cout<<endl;
             // cleanup arrays
