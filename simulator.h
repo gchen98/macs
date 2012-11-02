@@ -20,6 +20,8 @@ using namespace std;
 
 // LIST OF TYPES DECLARED HERE
 
+typedef unsigned int uint;
+
 // sort by event time
 struct byEventTime;
 // sort by end position of a gene conversion tract

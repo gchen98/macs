@@ -1,6 +1,7 @@
 # compile options
 CFLAGS = -Wall -g
 #CFLAGS = -Wall -O3
+# Add location of any library locations below with -L 
 LINKFLAGS = 
 #LINKFLAGS = -static 
 
@@ -43,4 +44,4 @@ msformat.o: msformat.cpp
 
 all :	$(SIM) $(FORMAT)
 clean :
-	rm -fr *.o
+	rm -fr *.o macs

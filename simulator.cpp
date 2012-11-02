@@ -167,7 +167,6 @@ void Simulator::readInputParameters(CommandArguments arguments){
             double dTime;
             char chType;
             EventPtr wrapper;
-            int iType = -9;
             short unsigned int iNoMigrPops;
             short unsigned int iMigrPops;
             short unsigned int iTotalCells;
@@ -497,7 +496,7 @@ void Simulator::readInputParameters(CommandArguments arguments){
                                 ", you need to specify a single pop size for all populations.\n";
                                 exit(1);
                             }else{
-                                iType = Event::GLOBAL_POPSIZE;
+                                //int iType = Event::GLOBAL_POPSIZE;
                                 wrapper = EventPtr(new GenericEvent(
                                 Event::GLOBAL_POPSIZE,dTime,
                                 atof(arguments[iCurrentArg][2].data())));
@@ -511,7 +510,7 @@ void Simulator::readInputParameters(CommandArguments arguments){
                                 ", you need to specify a single growth rate for all populations.\n";
                                 exit(1);
                             }else{
-                                iType = Event::GLOBAL_POPGROWTH;
+                                //int iType = Event::GLOBAL_POPGROWTH;
                                 wrapper = EventPtr(new GenericEvent(
                                 Event::GLOBAL_POPGROWTH,dTime,
                                 atof(arguments[iCurrentArg][2].data())));
@@ -526,7 +525,7 @@ void Simulator::readInputParameters(CommandArguments arguments){
                                 ", you need to specify a single migration rate for all populations.\n";
                                 exit(1);
                             }else{
-                                iType = Event::GLOBAL_MIGRATIONRATE;
+                                //iType = Event::GLOBAL_MIGRATIONRATE;
                                 wrapper = EventPtr(new GenericEvent(
                                 Event::GLOBAL_MIGRATIONRATE,dTime,
                                 atof(arguments[iCurrentArg][2].data())));
@@ -540,7 +539,7 @@ void Simulator::readInputParameters(CommandArguments arguments){
                                 ", you need to specify pop id followed by the new size.\n";
                                 exit(1);
                             }else{
-                                iType = Event::POPSIZE;
+                                //iType = Event::POPSIZE;
                                 wrapper = EventPtr(new PopSizeChangeEvent(
                                 Event::POPSIZE,dTime,atoi( arguments[iCurrentArg][2].data() ) -1,
                                 atof( arguments[iCurrentArg][3].data() )));
@@ -554,7 +553,7 @@ void Simulator::readInputParameters(CommandArguments arguments){
                                 ", you need to specify pop id followed by the new growth rate.\n";
                                 exit(1);
                             }else{
-                                iType = Event::GROWTH;
+                                //iType = Event::GROWTH;
                                 wrapper = EventPtr(new PopSizeChangeEvent(
                                 Event::GROWTH,dTime,atoi( arguments[iCurrentArg][2].data() ) -1,
                                 atof( arguments[iCurrentArg][3].data() )));
@@ -569,7 +568,7 @@ void Simulator::readInputParameters(CommandArguments arguments){
                                 ", you need to specify pop id followed by the proportion of the split.\n";
                                 exit(1);
                             }else{
-                                iType = Event::POPSPLIT;
+                                //iType = Event::POPSPLIT;
                                 iPop1 = atoi( arguments[iCurrentArg][2].data() )-1;
                                 dProportion = atof( arguments[iCurrentArg][3].data() );
                                 if (iPop1<0||iPop1>=pConfig->iTotalPops||dProportion<0||
@@ -590,7 +589,7 @@ void Simulator::readInputParameters(CommandArguments arguments){
                                 ", you need to specify source pop id followed by the destination pop id.\n";
                                 exit(1);
                             }else{
-                                iType = Event::POPJOIN;
+                                //iType = Event::POPJOIN;
                                 iPop1 = atoi( arguments[iCurrentArg][2].data() ) -1;
                                 iPop2 = atoi( arguments[iCurrentArg][3].data() ) -1;
                                 if (iPop1<0||iPop2<0){
@@ -625,7 +624,7 @@ void Simulator::readInputParameters(CommandArguments arguments){
                                     ", the number of cells do not match the number of pops specified squared.\n";
                                     exit(1);
                                 }
-                                iType = Event::MIGRATION_MATRIX_RATE;
+                                //iType = Event::MIGRATION_MATRIX_RATE;
                                 iSubOption = 2;
                                 MatrixDouble dMigrationMatrix;
                                 for (int i=0;i<iTotalPops;++i){
@@ -660,7 +659,7 @@ void Simulator::readInputParameters(CommandArguments arguments){
                                     ", you must specify the source pop, dest pop, and the migration rate.\n";
                                     exit(1);
                                 }else{
-                                iType = Event::MIGRATION_RATE;
+                                //iType = Event::MIGRATION_RATE;
                                 wrapper = EventPtr(new MigrationRateEvent(
                                 Event::MIGRATION_RATE,dTime,
                                 atoi( arguments[iCurrentArg][2].data() ) -1,
