@@ -1,3 +1,6 @@
+Latest change updated 12-13-2012 Version 0.5a
+
+I have added a change to the output of segregating sites to support listing of the age of mutations.  This is the third column, preceding the column of bits representing the mutations across all haplotypes.  The msformat.cpp parser has been updated to accommodate this change.
 
 Latest change updated 08-13-2012 Version 0.4f
 

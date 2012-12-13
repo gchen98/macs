@@ -1060,13 +1060,15 @@ void GraphBuilder::addMutations(double startPos,double endPos){
             //   cout<<HAPLOBEGIN<<endl;
             //}
             double dRandomSpot = pRandNumGenerator->unifRV() * dLastTreeLength;
-            double temp=-1.;
-            EdgePtr selectedEdge = getRandomEdgeOnTree(temp,dRandomSpot);
+            double dMutationTime=-1.;
+            EdgePtr selectedEdge = getRandomEdgeOnTree(dMutationTime,dRandomSpot);
+            //cerr<<"Mutation time is "<<dMutationTime<<endl;
             mutateBelowEdge(selectedEdge);
             NodePtrVector::iterator it;
 
             cout<<MUTATIONSITE<<FIELD_DELIMITER<<pMutationPtrVector->size()<<
             FIELD_DELIMITER<< setw(15) << setprecision(9)<<startPos<<
+            FIELD_DELIMITER<< setw(15) << setprecision(9)<<dMutationTime<<
             FIELD_DELIMITER;
             unsigned int iSampleSize = pConfig->iSampleSize;
             for (unsigned int iSampleIndex=0;iSampleIndex<iSampleSize;++iSampleIndex){
