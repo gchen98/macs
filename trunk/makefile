@@ -44,4 +44,4 @@ msformat.o: msformat.cpp
 
 all :	$(SIM) $(FORMAT)
 clean :
-	rm -fr *.o macs
+	rm -fr *.o $(SIM)  $(FORMAT)
