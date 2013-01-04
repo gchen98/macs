@@ -56,9 +56,9 @@ int main(int argc,char * argv[]){
            treeDataFile<<tree<<endl;
         }else if(constant.compare(MUTATIONSITE)==0){
             string index,position,mutationTime,mutations;
-            tokens>>index>>position>>mutations;
+            tokens>>index>>position>>mutationTime>>mutations;
             haploDataFile<<index<<FIELD_DELIMITER<<position<<FIELD_DELIMITER
-            <<mutationTime<<FIELD_DELIMITER<<mutations<<endl;
+            <<mutations<<endl;
             //getline(cin,line);
             //while(line.compare(HAPLOEND)!=0){
             //    haploDataFile<<line<<endl;
