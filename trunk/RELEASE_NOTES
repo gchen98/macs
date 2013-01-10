@@ -1,3 +1,7 @@
+Latest change updated 01-10-2013 Version 0.5b
+
+A bug was found in msformat.cpp and this has been fixed.  Also, for complicated population joining and splitting events, event times need to reflect a unique order.  Very close times should be mathematically close enough (e.g. for two events of the same time 0.00011 vs 0.00012 if .000105 was the intended time).  Note that when migration and split event proportions are small that there may be insufficient chromosomes to execute the event.  User friendlier messages are now added when an exception is thrown.
+
 Latest change updated 12-13-2012 Version 0.5a
 
 I have added a change to the output of segregating sites to support listing of the age of mutations.  This is the third column, preceding the column of bits representing the mutations across all haplotypes.  The msformat.cpp parser has been updated to accommodate this change.
