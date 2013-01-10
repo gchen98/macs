@@ -375,6 +375,7 @@ short int PopJoinEvent::getDestPop(){
 }
 
 GraphBuilder::~GraphBuilder(){
+    cerr<<"Graphbuilder destructor\n";
     this->pConfig = NULL;
     this->pRandNumGenerator = NULL;
 
@@ -572,8 +573,8 @@ void GraphBuilder::addEdge(EdgePtr & edge){
             this->pEdgeVectorByPop->push_back(EdgePtrVector());
             this->pVectorIndicesToRecycle->push_back(EdgeIndexQueue());
         }else{
-            cerr<<"Attempting to add edge of population "<<iPopulation<<endl;
-            throw "edge population is too large";
+            cerr<<"Attempting to add edge of population "<<iPopulation<<" when the number of available population edge pools is only "<<pEdgeVectorByPop->size()<<". It is recommended that you increase the migration rates and/or number of sampled chromosomes."<<endl;
+            throw "Data structure integrity error.";
         }
     }
 

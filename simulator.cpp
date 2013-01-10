@@ -16,6 +16,7 @@ RandNumGenerator::RandNumGenerator(unsigned long iRandomSeed){
 }
 
 RandNumGenerator::~RandNumGenerator(){
+  cerr<<"Rand generator destructor\n";
   delete unif;
 }
 
@@ -96,6 +97,7 @@ Configuration::Configuration(){
 }
 
 Configuration::~Configuration(){
+    cerr<<"Configuration destructor\n";
     delete pEventList;
     if (bSNPAscertainment){
         AlleleFreqBinPtrSet::iterator it;
@@ -156,6 +158,7 @@ void Simulator::readInputParameters(CommandArguments arguments){
     }
     pConfig->dSeqLength = atof(arguments[0][1].data());
     cerr<<"INPUT: Seq length is now "<<pConfig->dSeqLength<<endl;
+    set<float> eventTimes;
     for (unsigned int iCurrentArg = 1;iCurrentArg<iTotalArgs;++iCurrentArg){
         try{
             if(arguments[iCurrentArg][0][0] != '-' ) {
@@ -365,6 +368,9 @@ void Simulator::readInputParameters(CommandArguments arguments){
                     }
 
                     // Allocate migration rate matrix
+                   if (pConfig->bDebug){
+                     cerr<<"Constructing migration matrix of dimension "<<pConfig->iTotalPops<<endl;
+                   }
                     pConfig->dMigrationMatrix.clear();
                     for (int i=0;i<pConfig->iTotalPops;++i){
                         vector<double> newRow;
@@ -479,6 +485,7 @@ void Simulator::readInputParameters(CommandArguments arguments){
                     }
                     break;
                 case 'e' :
+                    // these are events.  Be sure the times are unique
                     chType = arguments[iCurrentArg][0][2];
                     if ((arguments[iCurrentArg][0][3])=='a') bAcceptFullMigrMatrix = true;
                     else bAcceptFullMigrMatrix = false;
@@ -489,6 +496,12 @@ void Simulator::readInputParameters(CommandArguments arguments){
                     }
                     dTime = atof(arguments[iCurrentArg][1].data());
                     cerr<<"INPUT: At time "<<dTime<<": ";
+                    if (eventTimes.find(dTime)==eventTimes.end()){
+                      eventTimes.insert(dTime);
+                    }else{
+                      cerr<<"Error, this event is redundant with a previous time.  Please increment it slightly from "<<dTime<<" to prevent unpredictable results\n";
+                      throw "Invalid input";
+                    }
                     int iPop1,iPop2;
                     double dProportion;
                     switch(chType){
@@ -727,7 +740,7 @@ Simulator::Simulator(){
 }
 
 Simulator::~Simulator(){
-//    cerr<<"Simulator destructor:"<<endl;
+    cerr<<"Simulator destructor:"<<endl;
     delete pConfig;
 }
 
@@ -770,8 +783,8 @@ int main(int argc,char * argv[]){
         simulator.readInputParameters(arguments);
         simulator.beginSimulation();
     }catch(const char* message){
-	    cerr<<"Exception at main:"<<endl<<message<<endl;
-	}
+      cerr<<"Exception at main:"<<endl<<message<<endl;
+    }
 	cerr<<"Program is complete\n";
 	exit(0);
 }

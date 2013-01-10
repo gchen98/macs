@@ -46,6 +46,7 @@ double dRandomSpot){
 
 EdgePtr GraphBuilder::getRandomEdgeToCoalesce(EdgePtr & coalescingEdge,
 double dHeight){
+
     if (this->bEndGeneConversion){
         return this->gcOldEdge;
     }
@@ -274,7 +275,13 @@ void GraphBuilder::invokeRecombination(GeneConversionPtr & geneConversionPtr){
     // now initialize the parameters that will be sent to the event traversal routine
     EventPtr newCoalEvent;
     // Traverse the events to find the proper coalescent waiting time.
+    if (pConfig->bDebug){
+      cerr<<"Calling traverse events\n";
+    }
     traverseEvents(true,xOverNode,newCoalEvent);
+    if (pConfig->bDebug){
+      cerr<<"Traverse events completed successfully\n";
+    }
     dSplitPoint = newCoalEvent->getTime();
     bool bNewOrigin = false;
     EdgePtr selectedCoalEdge;
@@ -384,9 +391,14 @@ NodePtr & xOverNode, EventPtr & newCoalEvent){
     // make a copy of the population information to the dynamic vector
     PopVector pPopList = pConfig->pPopList;
     // make a copy of the the migration matrix over to our dynamic 2-d vector
-    if (pConfig->bMigrationChangeEventDefined)
+    if (pConfig->bMigrationChangeEventDefined){
+        //dMigrationMatrix.clear();
         dMigrationMatrix = pConfig->dMigrationMatrix;
+    }
 
+    if (pConfig->bDebug){
+      cerr<<"Made copies from configuration object\n";
+    }
     // set up pile of coalesced nodes for building the prior tree
     NodePtrSet * pCoalescedNodes = NULL;
     if (!bBuildFromEventList){
@@ -407,6 +419,9 @@ NodePtr & xOverNode, EventPtr & newCoalEvent){
     }
 
     // remove any leading events that are marked for deletion.
+    if (pConfig->bDebug){
+      cerr<<"Removing leading events marked for deletion\n";
+    }
     EventPtrList::iterator currentEventIt = pEventList->begin();
     EventPtrList::iterator lastEventIt = pEventList->end();
     EventPtr pNextNewEvent;
@@ -425,6 +440,9 @@ NodePtr & xOverNode, EventPtr & newCoalEvent){
     short int iCoalescingPop = -1;
     unsigned long int iCoalRate = 0;
     double dTime = 0.0,dMigration = 0.0,dLastTime = 0.0,dWaitTime=0.;
+    if (pConfig->bDebug){
+      cerr<<"Beginning events traversal\n";
+    }
     while (!bDoneBuild){
 //        for(int pop=0; pop<iTotalPops ; ++pop) {      //coalescent
 //          int iChrSampled=(pPopList[pop].getPopSize()>0.)?pPopList[pop].getChrSampled():0;
@@ -506,6 +524,7 @@ NodePtr & xOverNode, EventPtr & newCoalEvent){
             // BEGIN MIGRATION SECTION
             dMigration = 0.0;
             if (bBuildFromEventList){
+                if (pConfig->bDebug) cerr<<"migration request, origin: "<<iRequestedPop<<","<<iOriginPop<<endl;
                 if (bAboveOrigin){
                     dMigration = dMigrationMatrix[iRequestedPop][iRequestedPop]+
                     dMigrationMatrix[iOriginPop][iOriginPop];
@@ -549,18 +568,20 @@ NodePtr & xOverNode, EventPtr & newCoalEvent){
         ){
             dTime = pNextNewEvent->getTime();
             short int eventType =  pNextNewEvent->getType();
+            if (pConfig->bDebug) cerr<<"At time "<<dTime<<" event type is  "<<eventType<<endl;
             if (eventType==Event::PAST_COAL){
                 CoalEvent * pExistingCoalEvent =
                 static_cast<CoalEvent *>(pNextNewEvent.get());
                 iCoalescingPop = pExistingCoalEvent->getPopulation();
                 pPopList[iCoalescingPop].changeChrSampled(-1);
             }else if (eventType==Event::PAST_MIGRATION){
-                //cerr<<"Past migration event at time "<<dTime<<endl;
+                if (pConfig->bDebug) cerr<<"Past migration event at time "<<dTime<<endl;
                 MigrationEvent * pExistingMigEvent =
                 static_cast<MigrationEvent *>(pNextNewEvent.get());
                 short int iSourcePop = pExistingMigEvent->getPopMigratedFrom();
                 short int iDestPop = pExistingMigEvent->getPopMigratedTo();
-
+        
+                if (pConfig->bDebug) cerr<<"source,dest pop "<<iSourcePop<<","<<iDestPop<<endl;
                 if (iDestPop==iTotalPops){
                    // we need to split the populations
                    Population newPop;
@@ -570,9 +591,8 @@ NodePtr & xOverNode, EventPtr & newCoalEvent){
                    for (int j=0;j<iTotalPops;++j)
                        newRow[j]=0.0;
                    dMigrationMatrix.push_back(newRow);
-                   for (int j=0;j<iTotalPops;++j)
-                      dMigrationMatrix[j].push_back(0.0);
                 }
+                if (pConfig->bDebug) cerr<<"dMigrationMatrix has dim "<<dMigrationMatrix.size()<<endl;
 
                 pPopList[iSourcePop].changeChrSampled(-1);
                 pPopList[iDestPop].changeChrSampled(1);
@@ -591,6 +611,9 @@ NodePtr & xOverNode, EventPtr & newCoalEvent){
                 short int  iSourcePop = migRateEvent->getSourcePop();
                 short int iDestPop = migRateEvent->getDestPop();
                 double dMigRate = migRateEvent->getRate();
+                if (pConfig->bDebug){
+                  cerr<<"Mig matrix has dim "<<dMigrationMatrix.size()<<" and source,Dest is "<<iSourcePop<<","<<iDestPop<<endl;
+                }
                 dMigrationMatrix[iSourcePop][iSourcePop]+=
                 dMigRate-dMigrationMatrix[iSourcePop][iDestPop];
                 dMigrationMatrix[iSourcePop][iDestPop] = dMigRate;
@@ -623,12 +646,27 @@ NodePtr & xOverNode, EventPtr & newCoalEvent){
                 pPopList[pop].setPopSize(growthEvent->getPopChangeParam());
                 pPopList[pop].setGrowthAlpha(0);
             }else if (eventType==Event::POPJOIN){
+                if (pConfig->bDebug){
+                  cerr<<"POPJOIN event encountered\n";
+                }
                 // merge pop i into pop j  (join)
                 PopJoinEvent * joinEvent = static_cast
                 <PopJoinEvent *>(pNextNewEvent.get());
                 short int iSourcePop = joinEvent->getSourcePop();
                 short int iDestPop = joinEvent->getDestPop();
+                if (pConfig->bDebug){
+                  cerr<<"Total,source,dest: "<<iTotalPops<<","<<iSourcePop<<","<<iDestPop<<endl;
+                }
+                if (iSourcePop>=iTotalPops){
+                  cerr <<"Source pop and total pops are "<<iSourcePop<<","<<iTotalPops<<" in POP JOIN event at history "<<iGraphIteration<<". It is recommended that you increase the migration rates and/or number of sampled chromosomes.\n";
 
+                  throw "Invalid data structure";
+                }
+
+                if (iDestPop>iTotalPops){
+                  cerr <<"Dest pop and total pops are "<<iDestPop<<","<<iTotalPops<<" in POP JOIN event\n";
+                  throw "Invalid data structure";
+                }
                 if (iDestPop==iTotalPops){
                    // we need to split the populations
                    Population newPop;
@@ -640,6 +678,9 @@ NodePtr & xOverNode, EventPtr & newCoalEvent){
                    dMigrationMatrix.push_back(newRow);
                    for (int j=0;j<iTotalPops;++j)
                       dMigrationMatrix[j].push_back(0.0);
+                   if (pConfig->bDebug){
+                     cerr<<"In pop join, dMigrationMatrix dim is "<<dMigrationMatrix.size()<<endl;
+                   }
                 }
 
                 if (!bBuildFromEventList){
@@ -673,7 +714,6 @@ NodePtr & xOverNode, EventPtr & newCoalEvent){
                         pEventList->insert(currentEventIt,eventWrapper);
                     }
                 }else{
-                    if (pConfig->bDebug) cerr<<"At time: "<<dTime<<endl;
                     if (iRequestedPop==iSourcePop &&
                     coalescingEdge->getBottomNodeRef()->getHeight() < dTime &&
                     dTime < coalescingEdge->getTopNodeRef()->getHeight()){
@@ -701,6 +741,10 @@ NodePtr & xOverNode, EventPtr & newCoalEvent){
                 .getChrSampled()) ;
                 pPopList[iSourcePop].setChrSampled(0);
             }else if (eventType==Event::POPSPLIT){
+                if (pConfig->bDebug){
+                  cerr<<"POPSPLIT event encountered at time "<<dTime<<"\n";
+//    if (iGraphIteration==887) throw "test exit";
+                }
                 PopSizeChangeEvent *splitEvent = static_cast
                 <PopSizeChangeEvent *>(pNextNewEvent.get());
                 short int iSourcePop = splitEvent->getPopulationIndex();
@@ -748,8 +792,14 @@ NodePtr & xOverNode, EventPtr & newCoalEvent){
                         parentNode->setEvent(eventWrapper);
                         pEventList->insert(currentEventIt,eventWrapper);
                     }
+                    if (pConfig->bDebug) {
+                      cerr<<"In pop split mig dim is size "<<dMigrationMatrix.size()<<endl;
+                    }
                 } else{
                     iDestPop=iTotalPops-1;
+                    if (pConfig->bDebug){
+                      cerr<<"In POPSPLIT: destpop,sourcepop,size: "<<iDestPop<<","<<iSourcePop<<","<<pPopList.size()<<endl;
+                    }
                     if (iRequestedPop==iSourcePop&&
                     coalescingEdge->getBottomNodeRef()->getHeight() < dTime &&
                     dTime < coalescingEdge->getTopNodeRef()->getHeight()&&
@@ -808,14 +858,17 @@ NodePtr & xOverNode, EventPtr & newCoalEvent){
                 throw "Event is not implemented yet!";
             }
             ++currentEventIt;
+            if (pConfig->bDebug) cerr<<"looking for events to mark for deletion\n";
             bool found = false;
             while(!found && currentEventIt!=lastEventIt){
+                if (*currentEventIt==NULL) cerr<<"null\n";
                 if ((*currentEventIt)->bMarkedForDelete) currentEventIt=pEventList->erase(currentEventIt);
                 else found = true;
             }
-
+            if (pConfig->bDebug) cerr<<"user event processing complete\n";
         }else{
             dTime += dWaitTime;
+            if(pConfig->bDebug) cerr<<"Handling migration or coalescence at time "<<dTime<<endl;
             if(iEventType==Event::NEW_MIGRATION){
                 double dRandMigr =  dMigration*pRandNumGenerator->unifRV();
                 vector<int> migrantPops;
@@ -836,6 +889,9 @@ NodePtr & xOverNode, EventPtr & newCoalEvent){
                 int migrant=-1,i=0;
                 double dSum=0.;
                 while (dRandMigr>=dSum && i<iTotalChrom){
+                    if (pConfig->bDebug){
+                       cerr<<"In existing mig node, dMigrationMatrix size "<<dMigrationMatrix.size()<<" and migrantPops[i]: "<<migrantPops[i]<<endl;
+                    }
                     dSum += dMigrationMatrix[migrantPops[i]][migrantPops[i]];
                     migrant = i ;
                     ++i;
@@ -878,6 +934,9 @@ NodePtr & xOverNode, EventPtr & newCoalEvent){
                     dMigrationMatrix[source_pop][source_pop];
                     dSum = 0.0;
                     i = 0;
+                    if (pConfig->bDebug){
+                       cerr<<"2 In existing mig node, dMigrationMatrix size "<<dMigrationMatrix.size()<<" and sourcepop, itotalpops: "<<source_pop<<","<<iTotalPops<<endl;
+                    }
 
                     while (dRandMigr>=dSum && i<iTotalPops){
                         if( i != source_pop){
