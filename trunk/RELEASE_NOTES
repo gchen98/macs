@@ -1,3 +1,7 @@
+Latest change updated 01-10-2013 Version 0.5c
+
+Jack Kamm has recommended a change to the calculation of the random exponential draw to prevent the rare event the the uniform RNG returns 0.  This is now implemented in simulator.h
+
 Latest change updated 01-10-2013 Version 0.5b
 
 A bug was found in msformat.cpp and this has been fixed.  Also, for complicated population joining and splitting events, event times need to reflect a unique order.  Very close times should be mathematically close enough (e.g. for two events of the same time 0.00011 vs 0.00012 if .000105 was the intended time).  Note that when migration and split event proportions are small that there may be insufficient chromosomes to execute the event.  User friendlier messages are now added when an exception is thrown.
