@@ -893,7 +893,7 @@ inline short int XoverEvent::getPopulation(){
 }
 
 inline double RandNumGenerator::expRV(double dLambda){ // generates exponential random variables
-    return -log((*unif)())/(dLambda);
+    return -log(1.-(*unif)())/(dLambda);
 }
 
 inline double RandNumGenerator::unifRV() {
