@@ -391,13 +391,18 @@ NodePtr & xOverNode, EventPtr & newCoalEvent){
     // make a copy of the population information to the dynamic vector
     PopVector pPopList = pConfig->pPopList;
     // make a copy of the the migration matrix over to our dynamic 2-d vector
-    if (pConfig->bMigrationChangeEventDefined){
+    //if (pConfig->bMigrationChangeEventDefined){
         //dMigrationMatrix.clear();
         dMigrationMatrix = pConfig->dMigrationMatrix;
-    }
-
+    //}
     if (pConfig->bDebug){
-      cerr<<"Made copies from configuration object\n";
+      cerr<<"Migration Matrix from copy\n";
+      for (int j=0;j<iTotalPops;++j){
+        for (int k=0;k<iTotalPops;++k){
+          cerr<<" "<<dMigrationMatrix[j][j];
+        }
+        cerr<<endl;
+      }
     }
     // set up pile of coalesced nodes for building the prior tree
     NodePtrSet * pCoalescedNodes = NULL;
@@ -444,11 +449,6 @@ NodePtr & xOverNode, EventPtr & newCoalEvent){
       cerr<<"Beginning events traversal\n";
     }
     while (!bDoneBuild){
-//        for(int pop=0; pop<iTotalPops ; ++pop) {      //coalescent
-//          int iChrSampled=(pPopList[pop].getPopSize()>0.)?pPopList[pop].getChrSampled():0;
-//          cerr<<"At time "<<dTime<<", pop "<<pop<<" has chr sampled "<<iChrSampled<<endl;
-//          cerr<<"Requested pop is "<<iRequestedPop<<endl;
-//        }
         int iEventType = -1;
         if (currentEventIt!=lastEventIt){
             pNextNewEvent = *currentEventIt;
@@ -524,7 +524,6 @@ NodePtr & xOverNode, EventPtr & newCoalEvent){
             // BEGIN MIGRATION SECTION
             dMigration = 0.0;
             if (bBuildFromEventList){
-                if (pConfig->bDebug) cerr<<"migration request, origin: "<<iRequestedPop<<","<<iOriginPop<<endl;
                 if (bAboveOrigin){
                     dMigration = dMigrationMatrix[iRequestedPop][iRequestedPop]+
                     dMigrationMatrix[iOriginPop][iOriginPop];
@@ -568,7 +567,7 @@ NodePtr & xOverNode, EventPtr & newCoalEvent){
         ){
             dTime = pNextNewEvent->getTime();
             short int eventType =  pNextNewEvent->getType();
-            if (pConfig->bDebug) cerr<<"At time "<<dTime<<" event type is  "<<eventType<<endl;
+            //if (pConfig->bDebug) cerr<<"At time "<<dTime<<" event type is  "<<eventType<<endl;
             if (eventType==Event::PAST_COAL){
                 CoalEvent * pExistingCoalEvent =
                 static_cast<CoalEvent *>(pNextNewEvent.get());
@@ -740,6 +739,25 @@ NodePtr & xOverNode, EventPtr & newCoalEvent){
                 pPopList[iDestPop].changeChrSampled(pPopList[iSourcePop]
                 .getChrSampled()) ;
                 pPopList[iSourcePop].setChrSampled(0);
+                // 2013-06-23 GKC begin codefix to revise migration matrix
+                for (int j=0;j<iTotalPops;++j){
+                  if (j==iSourcePop){
+                    for (int k=0;k<iTotalPops;++k){
+                      // this population is dead and doesn't accept migrants
+                      dMigrationMatrix[j][k] = 0.;
+                    }
+                  }else{
+                    // look for the emigration rate of the dead pop
+                    for (int k=0;k<iTotalPops;++k){
+                      if (k==iSourcePop){
+                        dMigrationMatrix[j][j] -= dMigrationMatrix[j][k];
+                        dMigrationMatrix[j][k] = 0;;
+                        break;
+                      }
+                    }
+                  }
+                }
+                // 2013-06-23 GKC end codefix to revise migration matrix
             }else if (eventType==Event::POPSPLIT){
                 if (pConfig->bDebug){
                   cerr<<"POPSPLIT event encountered at time "<<dTime<<"\n";
@@ -858,14 +876,14 @@ NodePtr & xOverNode, EventPtr & newCoalEvent){
                 throw "Event is not implemented yet!";
             }
             ++currentEventIt;
-            if (pConfig->bDebug) cerr<<"looking for events to mark for deletion\n";
+            //if (pConfig->bDebug) cerr<<"looking for events to mark for deletion\n";
             bool found = false;
             while(!found && currentEventIt!=lastEventIt){
                 if (*currentEventIt==NULL) cerr<<"null\n";
                 if ((*currentEventIt)->bMarkedForDelete) currentEventIt=pEventList->erase(currentEventIt);
                 else found = true;
             }
-            if (pConfig->bDebug) cerr<<"user event processing complete\n";
+            //if (pConfig->bDebug) cerr<<"user event processing complete\n";
         }else{
             dTime += dWaitTime;
             if(pConfig->bDebug) cerr<<"Handling migration or coalescence at time "<<dTime<<endl;
