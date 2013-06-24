@@ -604,6 +604,10 @@ NodePtr & xOverNode, EventPtr & newCoalEvent){
                 MigrationRateMatrixEvent* migRateMatrixEvent = static_cast
                 <MigrationRateMatrixEvent*>(pNextNewEvent.get());
                 dMigrationMatrix = migRateMatrixEvent->getMigrationMatrix();
+                if (dMigrationMatrix.size()!=pPopList.size()){
+                  cerr<<"Error in specifying new migration matrix event.  The dimension of the matrix "<<dMigrationMatrix.size()<<" must equal the number of populations: "<<pPopList.size()<<endl;
+                  throw "Invalid migration matrix";
+                }
             }else if (eventType==Event::MIGRATION_RATE){
                 MigrationRateEvent* migRateEvent = static_cast
                 <MigrationRateEvent*>(pNextNewEvent.get());
