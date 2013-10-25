@@ -667,6 +667,7 @@ void Simulator::readInputParameters(CommandArguments arguments){
                                 MigrationRateMatrixEvent(
                                 Event::MIGRATION_MATRIX_RATE,dTime,
                                 dMigrationMatrix));
+                                cerr<<"Full migration matrix provided by the user\n";
 
                             }else{
                                  // the -em t i j x option specify just
@@ -677,6 +678,7 @@ void Simulator::readInputParameters(CommandArguments arguments){
                                     exit(1);
                                 }else{
                                 //iType = Event::MIGRATION_RATE;
+                                cerr<<"Mig rate of source pop "<<arguments[iCurrentArg][2] <<" to dest pop "<<arguments[iCurrentArg][3]<<" set to "<<arguments[iCurrentArg][4]<<".\n";
                                 wrapper = EventPtr(new MigrationRateEvent(
                                 Event::MIGRATION_RATE,dTime,
                                 atoi( arguments[iCurrentArg][2].data() ) -1,

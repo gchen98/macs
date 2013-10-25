@@ -22,13 +22,13 @@ OBJS = simulator.o algorithm.o datastructures.o
 $(SIM)  : $(OBJS) 
 	$(CC) -o $(SIM) $(OBJS) $(LINKFLAGS)
 
-simulator.o: simulator.cpp
+simulator.o: simulator.cpp simulator.h
 	$(CC) $(CFLAGS) $(LIB) -c $<
 
-algorithm.o: algorithm.cpp
+algorithm.o: algorithm.cpp simulator.h
 	$(CC) $(CFLAGS) $(LIB) -c $<
 
-datastructures.o: datastructures.cpp
+datastructures.o: datastructures.cpp simulator.h
 	$(CC) $(CFLAGS) $(LIB) -c $<
 
 # MS formatting utility
