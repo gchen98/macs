@@ -34,8 +34,14 @@ double dRandomSpot){
                 found = true;
             }else{
                 dRunningLength+=curEdge->getLength();
-
+                //if (pConfig->bDebug){
+                  //cerr<<"getRandomEdge: running length: "<<dRunningLength<<", random spot "<<dRandomSpot<<"\n"; 
+                //}
             }
+        }else{
+          //if (pConfig->bDebug){
+            //cerr<<"getRandomEdge: Sorry edge was deleted\n"; 
+          //}
         }
         ++counter;
         ++it;
@@ -52,8 +58,12 @@ double dHeight){
     }
     int iPopulation = coalescingEdge->getBottomNodeRef()->getPopulation();
     EdgePtrVector & pEdgeVector = this->pEdgeVectorByPop->at(iPopulation);
+    
     EdgeIndexQueue & pVectorIndicesToRecycle = this->pVectorIndicesToRecycle->at(iPopulation);
     unsigned int edgeVectorSize = pEdgeVector.size();
+    if (pConfig->bDebug){
+      cerr<<"getRandomEdgeToCoalesce: selecting population "<<iPopulation<<" with avail edges: "<< edgeVectorSize<<"\n";
+    }
     bool found = false;
     int iUnifPick =-1;
     while(!found){
@@ -70,10 +80,19 @@ double dHeight){
                 pVectorIndicesToRecycle.push(iUnifPick);
                 edge->bInQueue = true;
             }
+            if (pConfig->bDebug){
+              cerr<<"getRandomEdgeToCoalesce: edge already deleted \n";
+            }
         // if the proposed coalescing time is within the endpoints of this
         // randomly picked edge, select this edge
         }else if (edge->getBottomNodeRef()->getHeight()<dHeight
-         && edge->getTopNodeRef()->getHeight()>dHeight) found = true;
+         && edge->getTopNodeRef()->getHeight()>dHeight) {
+          found = true;
+        }else{
+          if (pConfig->bDebug){
+            cerr<<"getRandomEdgeToCoalesce: Edge out of range\n";
+          }
+        }
     }
     EdgePtr & edge = pEdgeVector[iUnifPick];
     if (pConfig->bDebug){
