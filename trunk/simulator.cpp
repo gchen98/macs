@@ -474,7 +474,7 @@ void Simulator::readInputParameters(CommandArguments arguments){
                         exit(1);
                     }else{
                         float g = atof(arguments[iCurrentArg][1].data());
-                        if (g<=0) throw "Global growth rate must be positive";
+                        if (g<0) throw "Global growth rate must be positive";
                         dDefaultGrowthAlpha = atof( arguments[iCurrentArg][1].data() );
 //                    cerr<<"INPUT: Growth rate for all pop "<<dDefaultGrowthAlpha<<endl;
                         for(int i=0; i<pConfig->iTotalPops; ++i){
@@ -526,7 +526,7 @@ void Simulator::readInputParameters(CommandArguments arguments){
                                 exit(1);
                             }else{
                                 float g = atof(arguments[iCurrentArg][2].data());
-                                if (g<=0) throw "Global event growth rate must be positive";
+                                if (g<0) throw "Global event growth rate must be positive";
                                 //int iType = Event::GLOBAL_POPGROWTH;
                                 wrapper = EventPtr(new GenericEvent(
                                 Event::GLOBAL_POPGROWTH,dTime,
