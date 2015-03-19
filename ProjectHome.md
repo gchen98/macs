@@ -1,0 +1,1 @@
+MaCS is a simulator of the coalescent process that simulates geneologies spatially across chromosomes as a Markovian process.  The algorithm is similar to the Wiuf and Hein algorithm (Wiuf and Hein, 1999) in that an ancestral recombination graph (ARG) is stored in memory.
