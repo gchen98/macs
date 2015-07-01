@@ -526,13 +526,13 @@ void Simulator::readInputParameters(CommandArguments arguments){
                                 exit(1);
                             }else{
                                 float g = atof(arguments[iCurrentArg][2].data());
-                                if (g<0) throw "Global event growth rate must be positive";
+                                //if (g<0) throw "Global event growth rate must be positive";
                                 //int iType = Event::GLOBAL_POPGROWTH;
                                 wrapper = EventPtr(new GenericEvent(
                                 Event::GLOBAL_POPGROWTH,dTime,
-                                atof(arguments[iCurrentArg][2].data())));
+                                g));
                                 cerr<<"Global growth rate is "<<
-                                atof( arguments[iCurrentArg][2].data() )<<endl;
+                                g<<endl;
                             }
                             break;
                         case 'M': // global migration rate

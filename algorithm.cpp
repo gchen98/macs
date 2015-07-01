@@ -602,13 +602,19 @@ NodePtr & xOverNode, EventPtr & newCoalEvent){
                 if (pConfig->bDebug) cerr<<"source,dest pop "<<iSourcePop<<","<<iDestPop<<endl;
                 if (iDestPop==iTotalPops){
                    // we need to split the populations
+                  // GKC: 2015-07-01 Changed iTotalPops to iTotalPops-1
+                   iTotalPops = pPopList.size();
+                   vector <double> newRow(iTotalPops);
+                   for (int j=0;j<iTotalPops;++j){
+                     newRow[j]=0.0;
+                   }
+                   dMigrationMatrix.push_back(newRow);
                    Population newPop;
                    pPopList.push_back(newPop);
                    iTotalPops = pPopList.size();
-                   vector <double> newRow(iTotalPops);
-                   for (int j=0;j<iTotalPops;++j)
-                       newRow[j]=0.0;
-                   dMigrationMatrix.push_back(newRow);
+                   for (int j=0;j<iTotalPops;++j){
+                     dMigrationMatrix[j].push_back(0.0);
+                   }
                 }
                 if (pConfig->bDebug) cerr<<"dMigrationMatrix has dim "<<dMigrationMatrix.size()<<endl;
 
@@ -678,6 +684,10 @@ NodePtr & xOverNode, EventPtr & newCoalEvent){
                 short int iDestPop = joinEvent->getDestPop();
                 if (pConfig->bDebug){
                   cerr<<"Total,source,dest: "<<iTotalPops<<","<<iSourcePop<<","<<iDestPop<<endl;
+                  cerr<<"Migration matrix has "<<dMigrationMatrix.size()<<" rows.\n";
+                  for(uint i=0;i<dMigrationMatrix.size();++i){
+                    cerr<<"Row "<<i<<" has "<<dMigrationMatrix[i].size()<<" cols\n";
+                  }
                 }
                 if (iSourcePop>=iTotalPops){
                   cerr <<"Source pop and total pops are "<<iSourcePop<<","<<iTotalPops<<" in POP JOIN event at history "<<iGraphIteration<<". It is recommended that you increase the migration rates and/or number of sampled chromosomes.\n";
@@ -773,6 +783,9 @@ NodePtr & xOverNode, EventPtr & newCoalEvent){
                     // look for the emigration rate of the dead pop
                     for (int k=0;k<iTotalPops;++k){
                       if (k==iSourcePop){
+                        if(pConfig->bDebug){
+                          cerr<<"Attempting to get column "<<k<<", row "<<j<<"\n";
+                        }
                         dMigrationMatrix[j][j] -= dMigrationMatrix[j][k];
                         dMigrationMatrix[j][k] = 0;;
                         break;
@@ -793,12 +806,14 @@ NodePtr & xOverNode, EventPtr & newCoalEvent){
                 double dProportion = splitEvent->getPopChangeParam();
                 if (!bBuildFromEventList){
                   Population newPop;
-                  pPopList.push_back(newPop);
+                  // GKC: 2015-07-01 Changed iTotalPops to iTotalPops-1
                   iTotalPops = pPopList.size();
                   vector <double> newRow(iTotalPops);
-                  for (int j=0;j<iTotalPops;++j)
+                  for (int j=0;j<(iTotalPops);++j)
                       newRow[j]=0.0;
                   dMigrationMatrix.push_back(newRow);
+                  pPopList.push_back(newPop);
+                  iTotalPops = pPopList.size();
                   for (int j=0;j<iTotalPops;++j)
                     dMigrationMatrix[j].push_back(0.0);
                     NodePtrList nodesToMigrate;
@@ -809,6 +824,13 @@ NodePtr & xOverNode, EventPtr & newCoalEvent){
                             pRandNumGenerator->unifRV()<dProportion){
                             nodesToMigrate.push_back(node);
                         }
+                    }
+                    if(pConfig->bDebug){
+                      cerr<<"IN POPSPLIT\n";
+                      cerr<<"Migration matrix has "<<dMigrationMatrix.size()<<" rows.\n";
+                      for(uint i=0;i<dMigrationMatrix.size();++i){
+                        cerr<<"Row "<<i<<" has "<<dMigrationMatrix[i].size()<<" cols\n";
+                      }
                     }
                     for (NodePtrList::iterator it=nodesToMigrate.begin();
                     it!=nodesToMigrate.end();++it){
