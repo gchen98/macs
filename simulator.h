@@ -554,6 +554,7 @@ private:
     // grandMRCA stores the Node object which is the MRCA of the ARG
     // localMRCA is used when searching for the MRCA of the last tree
     NodePtr grandMRCA,localMRCA,xOverNode;
+    static const double dEpsilon = 1e-6;
 
     // *** USED FOR COMPUTING TIME TO COALESCENCE
     // linked list of events that must be traversed in order

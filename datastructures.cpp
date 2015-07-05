@@ -417,6 +417,7 @@ GraphBuilder::GraphBuilder(Configuration *pConfig,RandNumGenerator * pRG){
     this->pTreeEdgesToCoalesceArray = new EdgePtr[pConfig->iSampleSize];
     for (int i=0;i<pConfig->iTotalPops;++i){
         this->pEdgeVectorByPop->push_back(EdgePtrVector());
+        cerr<<"DEBUG: Size at "<<i<<" is "<<this->pEdgeVectorByPop->at(i).size()<<endl;
         this->pVectorIndicesToRecycle->push_back(EdgeIndexQueue());
     }
     this->pSampleNodeArray = new NodePtr[pConfig->iSampleSize];
@@ -565,19 +566,26 @@ void GraphBuilder::deleteEdge(EdgePtr & edge){
 // Insert into EdgeVector, pop refers to bottom node
 void GraphBuilder::addEdge(EdgePtr & edge){
     unsigned int iPopulation = edge->getBottomNodeRef()->getPopulation();
-
+    //if(pConfig->bDebug) cerr<<"DEBUG addEdge: iPopulation: "<<iPopulation<<" and pEdgeVectorByPop size "<<pEdgeVectorByPop->size()<<endl;
     this->pEdgeListInARG->push_back(edge);
-
-    if (iPopulation>=pEdgeVectorByPop->size()){
-        if (iPopulation==pEdgeVectorByPop->size()){
-            this->pEdgeVectorByPop->push_back(EdgePtrVector());
-            this->pVectorIndicesToRecycle->push_back(EdgeIndexQueue());
-        }else{
-            cerr<<"Attempting to add edge of population "<<iPopulation<<" when the number of available population edge pools is only "<<pEdgeVectorByPop->size()<<". It is recommended that you increase the migration rates and/or number of sampled chromosomes."<<endl;
-            throw "Data structure integrity error.";
-        }
+    while (iPopulation>=pEdgeVectorByPop->size()){
+        this->pEdgeVectorByPop->push_back(EdgePtrVector());
+        this->pVectorIndicesToRecycle->push_back(EdgeIndexQueue());
+        if(pConfig->bDebug)cerr<<"DEBUG! addEdge: Adding pop "<<iPopulation<<" has edge vector size: "<<pEdgeVectorByPop->size()<<endl;
+//        if(pConfig->bDebug)cerr<<"DEBUG! addEdge: Just added. Pop "<<iPopulation<<" has edge vector size: "<<pEdgeVectorByPop->at(iPopulation).size()<<endl;
+        //cerr<<"Attempting to add edge of population "<<iPopulation<<" when the number of available population edge pools is only "<<pEdgeVectorByPop->size()<<". It is recommended that you increase the migration rates and/or number of sampled chromosomes."<<endl;
+        //for(uint i=0;i<pEdgeVectorByPop->size();++i){
+         //cerr<<"Pop "<<i<<" has edge vector size: "<<pEdgeVectorByPop->at(i).size()<<endl;
+        //}
+         // throw "Data structure integrity error.";
+        //}
+      //}
     }
-
+    if (iPopulation>=pEdgeVectorByPop->size()){
+      if(pConfig->bDebug) cerr<<"DEBUG! addEdge: Still not added! iPopulation: "<<iPopulation<<" and pEdgeVectorByPop size "<<pEdgeVectorByPop->size()<<endl;
+      throw "Something wrong with while loop";
+    }
+    
     // Insert into the vector allowing for random access
     EdgePtrVector & pEdgeVector = this->pEdgeVectorByPop->
     at(iPopulation);
@@ -585,6 +593,7 @@ void GraphBuilder::addEdge(EdgePtr & edge){
     at(iPopulation);
     if (pVectorIndicesToRecycle.empty()){
         pEdgeVector.push_back(edge);
+        //if(pConfig->bDebug) cerr<<"DEBUG: pEdgeVector for pop "<<iPopulation<<" is now size: "<<pEdgeVector.size()<<endl;
     }else{
         int iIndex = pVectorIndicesToRecycle.front();
         pVectorIndicesToRecycle.pop();
