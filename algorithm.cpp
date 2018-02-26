@@ -1442,6 +1442,9 @@ void GraphBuilder::build(){
         }
         // check if we reached the end of the region
         if (curPos>dMaxPos) curPos=dMaxPos;
+        // check if there was an existing gene conversion event that needs
+        // to be closed. backtrack if necessary.
+        this->bEndGeneConversion  = checkPendingGeneConversions(curPos);
         if (pConfig->bNewickFormat){
             // Chen
             //uint iSegLength = (curPos-lastPos)*pConfig->dSeqLength;
@@ -1451,9 +1454,6 @@ void GraphBuilder::build(){
             cout<<NEWICKTREE<<"\t["<<iSegLength<<"]"<<
             getNewickTree(localMRCA->getHeight(),localMRCA)<<";"<<endl;
         }
-        // check if there was an existing gene conversion event that needs
-        // to be closed. backtrack if necessary.
-        this->bEndGeneConversion  = checkPendingGeneConversions(curPos);
         if (pConfig->dTheta>0.0){
             addMutations(lastPos,curPos);
         }
